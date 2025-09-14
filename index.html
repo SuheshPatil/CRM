@@ -1,0 +1,1073 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <title>CRM Dashboard</title>
+  <style>
+    :root {
+      --smt-l1-width: 64px;
+      --smt-menu-collapsed: 64px;
+      --smt-menu-expanded: 280px;
+      /* --smt-menu-mobile: 240px; */
+      --smt-transition: 240ms cubic-bezier(.2, .9, .2, 1);
+
+      /* Dark theme (default) */
+      --smt-bg: #0b0b0c;
+      --smt-sidebar-bg: #0f0f10;
+      --smt-text: #e8e8e8;
+      --smt-muted: #a2a2a2;
+      --smt-accent: #ffd166;
+      --smt-icon-bg: rgba(255, 255, 255, 0.05);
+      --smt-border: rgba(255, 255, 255, 0.1);
+      --smt-hover-bg: rgba(255, 255, 255, 0.08);
+    }
+
+    /* Light theme */
+    [data-theme="light"] {
+      --smt-bg: #f8f9fa;
+      --smt-sidebar-bg: #ffffff;
+      --smt-text: #2c3e50;
+      --smt-muted: #6c757d;
+      --smt-accent: #007bff;
+      --smt-icon-bg: rgba(0, 0, 0, 0.05);
+      --smt-border: rgba(0, 0, 0, 0.1);
+      --smt-hover-bg: rgba(0, 0, 0, 0.08);
+    }
+
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: var(--smt-bg);
+      color: var(--smt-text);
+      transition: background-color var(--smt-transition), color var(--smt-transition);
+    }
+
+    .smt-app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* L1 */
+    .smt-l1 {
+      width: var(--smt-l1-width);
+      background: var(--smt-sidebar-bg);
+      border-right: 1px solid var(--smt-border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+      justify-content: space-between;
+      transition: background-color var(--smt-transition), border-color var(--smt-transition);
+    }
+
+    .smt-l1-top {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .smt-l1-bottom {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .smt-iconBtn {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      background: transparent;
+      transition: background 0.2s;
+      border: none;
+      color: var(--smt-text);
+    }
+
+    nav .fas,
+    nav .fab {
+      font-size: 20px;
+    }
+
+    .smt-iconBtn:hover {
+      background: var(--smt-icon-bg);
+    }
+
+    .smt-iconBtn.active {
+      background: var(--smt-icon-bg);
+      color: var(--smt-text);
+    }
+
+    /* Theme toggle button specific styles */
+    .smt-theme-toggle {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .smt-theme-toggle .fas {
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .smt-theme-toggle .fa-sun {
+      position: absolute;
+      opacity: 0;
+      transform: rotate(180deg);
+    }
+
+    .smt-theme-toggle .fa-moon {
+      opacity: 1;
+      transform: rotate(0deg);
+    }
+
+    [data-theme="light"] .smt-theme-toggle .fa-sun {
+      opacity: 1;
+      transform: rotate(0deg);
+    }
+
+    [data-theme="light"] .smt-theme-toggle .fa-moon {
+      opacity: 0;
+      transform: rotate(-180deg);
+    }
+
+    /* Menu */
+    .smt-menu {
+      width: var(--smt-menu-collapsed);
+      background: var(--smt-sidebar-bg);
+      border-right: 1px solid var(--smt-border);
+      transition: width var(--smt-transition), background-color var(--smt-transition), border-color var(--smt-transition);
+      display: none;
+      flex-direction: column;
+    }
+
+    .smt-menu.active {
+      display: flex;
+    }
+
+    .smt-menu.expanded {
+      width: var(--smt-menu-expanded);
+    }
+
+    .smt-menu-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 12px;
+      border-bottom: 1px solid var(--smt-border);
+      transition: border-color var(--smt-transition);
+    }
+
+    .smt-menu-title {
+      font-weight: 600;
+      font-size: 16px;
+      opacity: 0;
+      transition: opacity var(--smt-transition);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .smt-menu.active .smt-menu-title {
+      display: none;
+    }
+
+    .smt-menu.active.expanded .smt-menu-title {
+      display: block;
+      opacity: 1;
+    }
+
+    /* Search Bar */
+    .smt-search-container {
+      padding: 12px;
+      border-bottom: 1px solid var(--smt-border);
+      opacity: 0;
+      transition: opacity var(--smt-transition), border-color var(--smt-transition);
+      overflow: hidden;
+      max-height: 0;
+      padding: 0 12px;
+    }
+
+    .smt-menu.expanded .smt-search-container {
+      opacity: 1;
+      max-height: 60px;
+      padding: 12px;
+    }
+
+    .smt-search-bar {
+      width: calc(100% - 25px);
+      background: var(--smt-icon-bg);
+      border: 1px solid var(--smt-border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: var(--smt-text);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background-color var(--smt-transition), border-color var(--smt-transition), color var(--smt-transition);
+    }
+
+    .smt-search-bar input {
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--smt-text);
+      flex: 1;
+    }
+
+    .smt-search-bar input::placeholder {
+      color: var(--smt-muted);
+    }
+
+    .smt-menu-item.expandable.expanded {
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .smt-menu-item-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    /* Sections */
+    .smt-section {
+      margin-bottom: 0;
+      transition: margin-bottom var(--smt-transition);
+    }
+
+    .smt-menu.expanded .smt-section {
+      margin-bottom: 16px;
+    }
+
+    .smt-section-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--smt-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0 0 8px 12px;
+      opacity: 0;
+      transition: opacity var(--smt-transition);
+      max-height: 0;
+      overflow: hidden;
+      margin: 0;
+    }
+
+    .smt-menu.expanded .smt-section-title {
+      opacity: 1;
+      max-height: 20px;
+      margin: 0 0 8px 12px;
+    }
+
+    .smt-menu-list {
+      list-style: none;
+      margin: 0;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .smt-menu-item {
+      gap: 10px;
+      padding: 8px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .smt-menu-item:hover {
+      background: var(--smt-hover-bg);
+    }
+
+    .smt-menu-item.active {
+      background: var(--smt-icon-bg);
+      color: var(--smt-text);
+    }
+
+    .smt-menu-icon {
+      width: 20px;
+      height: 20px;
+      display: grid;
+      place-items: center;
+      border-radius: 4px;
+      background: var(--smt-icon-bg);
+    }
+
+    .smt-menu-label {
+      opacity: 0;
+      white-space: nowrap;
+      transition: opacity var(--smt-transition);
+      font-size: 14px;
+    }
+
+    .smt-menu.expanded .smt-menu-label {
+      opacity: 1;
+    }
+    .smt-menu.expanded .smt-sub-items .smt-menu-item .smt-menu-item-container .smt-menu-label {
+      padding-left: 20px;
+    }
+
+    /* Expandable items */
+    .smt-expandable {
+      position: relative;
+    }
+
+    .smt-expand-arrow {
+      margin-left: auto;
+      transition: transform 0.2s;
+      opacity: 0;
+    }
+
+    .smt-menu.expanded .smt-expand-arrow {
+      opacity: 1;
+    }
+
+    .smt-expandable.expanded .smt-expand-arrow {
+      transform: rotate(180deg);
+    }
+
+    .smt-sub-items {
+      max-height: 0;
+      overflow: hidden;
+      margin-left: 0;
+      padding-inline-start: 0px;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: max-height 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
+      padding-left: 0;
+      list-style: none;
+    }
+
+    .smt-expandable.expanded .smt-sub-items {
+      max-height: 200px;
+      opacity: 1;
+      transform: translateY(0);
+      width: 100%;
+    }
+
+    /* Quick Actions */
+    .smt-quick-actions {
+      padding: 8px;
+    }
+
+    .smt-quick-action {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-bottom: 4px;
+    }
+
+    .smt-quick-action:hover {
+      background: var(--smt-hover-bg);
+    }
+
+    .smt-quick-action-icon {
+      width: 20px;
+      height: 20px;
+      display: grid;
+      place-items: center;
+      border-radius: 4px;
+      background: var(--smt-icon-bg);
+    }
+
+    .smt-quick-action-label {
+      opacity: 0;
+      white-space: nowrap;
+      transition: opacity var(--smt-transition);
+      font-size: 14px;
+    }
+
+    .smt-menu.expanded .smt-quick-action-label {
+      opacity: 1;
+    }
+
+    /* Main content */
+    .smt-main-content {
+      flex: 1;
+      padding: 20px;
+      background: var(--smt-bg);
+      transition: background-color var(--smt-transition);
+    }
+
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+      .smt-app {
+        position: relative;
+      }
+
+      /* L1 Rail - Keep visible on mobile */
+      .smt-l1 {
+        width: var(--smt-l1-width);
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        z-index: 1000;
+      }
+
+      /* Menu Sidebar - Mobile overlay */
+      .smt-menu {
+        position: fixed;
+        left: var(--smt-l1-width);
+        top: 0;
+        height: 100vh;
+        /* width: var(--smt-menu-mobile); */
+        z-index: 999;
+        transform: translateX(-100%);
+        transition: transform var(--smt-transition);
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+      }
+
+      .smt-menu.active {
+        display: flex;
+        transform: translateX(0);
+      }
+
+      .smt-menu.expanded {
+        width: var(--smt-menu-expanded);
+        transform: translateX(0);
+        overflow: auto;
+        scrollbar-width: none;
+      }
+
+      /* Mobile backdrop */
+      .smt-mobile-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 998;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity var(--smt-transition), visibility var(--smt-transition);
+      }
+
+      .smt-mobile-backdrop.active {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      /* Main content - adjust for mobile */
+      .smt-main-content {
+        margin-left: var(--smt-l1-width);
+        padding: 15px;
+        min-height: 100vh;
+      }
+
+      /* Mobile close button */
+      /* .smt-mobile-close-btn {
+        display: none;
+        position: absolute;
+        top: 16px;
+        right: 12px;
+        background: var(--smt-icon-bg);
+        border: none;
+        color: var(--smt-text);
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        cursor: pointer;
+        z-index: 1001;
+      }
+
+      .smt-menu.active .smt-mobile-close-btn {
+        display: grid;
+        place-items: center;
+      } */
+
+      /* Adjust sub-items for mobile */
+      .smt-sub-items {
+        padding-left: 15px;
+      }
+
+      /* .smt-sub-items .smt-menu-item {
+        padding: 8px 15px;
+        font-size: 14px;
+      } */
+
+      .smt-menu-item {
+        font-size: 14px;
+      }
+
+      /* Mobile search adjustments */
+      .smt-menu.expanded .smt-search-container {
+        padding: 10px;
+        padding: 12px 12px 50px;
+        margin-bottom: 20px;
+      }
+
+      .smt-search-bar {
+        padding: 10px 12px;
+      }
+      .smt-menu.expanded .smt-sub-items .smt-menu-item .smt-menu-item-container .smt-menu-label {
+        padding-left: 10px;
+      }
+    }
+
+    /* Tablet styles */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .smt-menu.expanded {
+        width: 260px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="smt-app">
+    <!-- Mobile backdrop -->
+    <div class="smt-mobile-backdrop" id="smt-mobileBackdrop"></div>
+    
+    <!-- L1 Rail -->
+    <nav class="smt-l1">
+      <div class="smt-l1-top">
+        <button class="smt-iconBtn" id="smt-homeBtn" title="Home"><i class="fab fa-forumbee"></i></button>
+        <button class="smt-iconBtn active" id="smt-dashboardBtn" title="Dashboard"><i class="fas fa-band-aid"></i></button>
+        <button class="smt-iconBtn" id="smt-tasksBtn" title="Tasks"><i class="fas fa-clipboard"></i></button>
+      </div>
+      <div class="smt-l1-bottom">
+        <button class="smt-iconBtn smt-theme-toggle" id="smt-themeToggle" title="Toggle Theme">
+          <i class="fas fa-moon"></i>
+          <i class="fas fa-sun"></i>
+        </button>
+        <button class="smt-iconBtn" id="smt-settingsBtn" title="Settings"><i class="fas fa-cog"></i></button>
+        <button class="smt-iconBtn" id="smt-profileBtn" title="Profile"><i class="fas fa-user"></i></button>
+      </div>
+    </nav>
+
+    <!-- Menu Dashboard -->
+    <aside class="smt-menu active" id="smt-dashboardMenu">
+      <!-- <button class="smt-mobile-close-btn" id="smt-dashboardCloseBtn">
+        <i class="fas fa-times"></i>
+      </button> -->
+      <div class="smt-menu-header">
+        <span class="smt-menu-title">Dashboard</span>
+        <div>
+          <button class="smt-iconBtn smt-expandBtn"><i class="fas fa-chevron-right"></i></button>
+          <button class="smt-iconBtn smt-collapseBtn" style="display:none;"><i class="fas fa-chevron-left"></i></button>
+        </div>
+      </div>
+
+      <div class="smt-search-container">
+        <div class="smt-search-bar">
+          <span><i class="fas fa-search"></i></span>
+          <input type="text" placeholder="Search...">
+        </div>
+      </div>
+
+      <div class="smt-section">
+        <div class="smt-section-title">Dashboard Types</div>
+        <ul class="smt-menu-list">
+          <li class="smt-menu-item active">
+            <div class="smt-menu-item-container">
+              <span class="smt-menu-icon"><i class="fas fa-eye"></i></span>
+              <span class="smt-menu-label">Overview</span>
+            </div>
+          </li>
+          <li class="smt-menu-item smt-expandable">
+            <div class="smt-menu-item-container">
+              <span class="smt-menu-icon"><i class="fas fa-chart-bar"></i></span>
+              <span class="smt-menu-label">Executive Summary</span>
+              <span class="smt-expand-arrow"><i class="fas fa-chevron-down"></i></span>
+            </div>
+            <ul class="smt-sub-items">
+              <li class="smt-menu-item">
+                <div class="smt-menu-item-container">
+                  <span class="smt-menu-label">Revenue Overview</span>
+                </div>
+              </li>
+              <li class="smt-menu-item">
+                <div class="smt-menu-item-container">
+                  <span class="smt-menu-label">Key Performance Indicators</span>
+                </div>
+              </li>
+              <li class="smt-menu-item">
+                <div class="smt-menu-item-container">
+                  <span class="smt-menu-label">Strategic Goals Progress</span>
+                </div>
+              </li>
+              <li class="smt-menu-item">
+                <div class="smt-menu-item-container">
+                  <span class="smt-menu-label">Department Highlights</span>
+                </div>
+              </li>
+              <li class="smt-menu-item">
+                <div class="smt-menu-item-container">
+                  <span class="smt-menu-label">Operational Metrics</span>
+                </div>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <div class="smt-section">
+        <div class="smt-section-title">Operations</div>
+        <ul class="smt-menu-list">
+          <li class="smt-menu-item smt-expandable">
+            <div class="smt-menu-item-container">
+              <span class="smt-menu-icon"><i class="fas fa-file"></i></span>
+              <span class="smt-menu-label">Operations Dashboard</span>
+              <span class="smt-expand-arrow"><i class="fas fa-chevron-down"></i></span>
+            </div>
+            <ul class="smt-sub-items">
+              <li class="smt-menu-item">
+                <div class="smt-menu-item-container">
+                  <span class="smt-menu-label">Process Management</span>
+                </div>
+              </li>
+              <li class="smt-menu-item">
+                <div class="smt-menu-item-container">
+                  <span class="smt-menu-label">Performance Metrics</span>
+                </div>
+              </li>
+              <li class="smt-menu-item">
+                <div class="smt-menu-item-container">
+                  <span class="smt-menu-label">Quality Control</span>
+                </div>
+              </li>
+            </ul>
+          </li>
+          <li class="smt-menu-item smt-expandable">
+            <div class="smt-menu-item-container">
+              <span class="smt-menu-icon"><i class="fas fa-chart-line"></i></span>
+              <span class="smt-menu-label">Financial Dashboard</span>
+              <span class="smt-expand-arrow"><i class="fas fa-chevron-down"></i></span>
+            </div>
+            <ul class="smt-sub-items">
+              <li class="smt-menu-item">
+                <div class="smt-menu-item-container">
+                  <span class="smt-menu-label">Revenue Analysis</span>
+                </div>
+              </li>
+              <li class="smt-menu-item">
+                <div class="smt-menu-item-container">
+                  <span class="smt-menu-label">Expense Tracking</span>
+                </div>
+              </li>
+              <li class="smt-menu-item">
+                <div class="smt-menu-item-container">
+                  <span class="smt-menu-label">Budget Management</span>
+                </div>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <div class="smt-section">
+        <div class="smt-section-title">Report Summaries</div>
+        <ul class="smt-menu-list">
+          <li class="smt-menu-item smt-expandable">
+            <div class="smt-menu-item-container">
+              <span class="smt-menu-icon"><i class="fas fa-file"></i></span>
+              <span class="smt-menu-label">Weekly Reports</span>
+              <span class="smt-expand-arrow"><i class="fas fa-chevron-down"></i></span>
+            </div>
+          </li>
+          <li class="smt-menu-item smt-expandable">
+            <div class="smt-menu-item-container">
+              <span class="smt-menu-icon"><i class="fas fa-star"></i></span>
+              <span class="smt-menu-label">Monthly Insights</span>
+              <span class="smt-expand-arrow"><i class="fas fa-chevron-down"></i></span>
+            </div>
+          </li>
+          <li class="smt-menu-item smt-expandable">
+            <div class="smt-menu-item-container">
+              <span class="smt-menu-icon"><i class="fas fa-eye"></i></span>
+              <span class="smt-menu-label">Quarterly Analysis</span>
+              <span class="smt-expand-arrow"><i class="fas fa-chevron-down"></i></span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Menu Tasks -->
+    <aside class="smt-menu" id="smt-tasksMenu">
+      <!-- <button class="smt-mobile-close-btn" id="smt-tasksCloseBtn">
+        <i class="fas fa-times"></i>
+      </button> -->
+      <div class="smt-menu-header">
+        <span class="smt-menu-title">Tasks</span>
+        <div>
+          <button class="smt-iconBtn smt-expandBtn"><i class="fas fa-chevron-right"></i></button>
+          <button class="smt-iconBtn smt-collapseBtn" style="display:none;"><i class="fas fa-chevron-left"></i></button>
+        </div>
+      </div>  
+
+      <div class="smt-search-container">
+        <div class="smt-search-bar">
+          <span>🔍</span>
+          <input type="text" placeholder="Search...">
+        </div>
+      </div>
+
+      <div class="smt-quick-actions">
+        <div class="smt-quick-action">
+          <span class="smt-quick-action-icon"><i class="fas fa-plus"></i></span>
+          <span class="smt-quick-action-label">New task</span>
+        </div>
+        <div class="smt-quick-action">
+          <span class="smt-quick-action-icon"><i class="fas fa-filter"></i></span>
+          <span class="smt-quick-action-label">Filter tasks</span>
+        </div>
+      </div>
+
+      <div class="smt-section">
+        <div class="smt-section-title">My Tasks</div>
+        <ul class="smt-menu-list">
+          <li class="smt-menu-item smt-expandable">
+            <div class="smt-menu-item-container">
+              <span class="smt-menu-icon"><i class="fas fa-clock"></i></span>
+              <span class="smt-menu-label">Due today</span>
+              <span class="smt-expand-arrow"><i class="fas fa-chevron-down"></i></span>
+            </div>
+          </li>
+          </li>
+          <li class="smt-menu-item smt-expandable">
+            <div class="smt-menu-item-container">
+              <span class="smt-menu-icon"><i class="fas fa-spinner"></i></span>
+              <span class="smt-menu-label">In progress</span>
+              <span class="smt-expand-arrow"><i class="fas fa-chevron-down"></i></span>
+            </div>
+          </li>
+          </li>
+          <li class="smt-menu-item smt-expandable">
+            <div class="smt-menu-item-container">
+              <span class="smt-menu-icon"><i class="fas fa-check"></i></span>
+              <span class="smt-menu-label">Completed</span>
+              <span class="smt-expand-arrow"><i class="fas fa-chevron-down"></i></span>
+            </div>
+          </li>
+          </li>
+        </ul>
+      </div>
+
+      <div class="smt-section">
+        <div class="smt-section-title">Other</div>
+        <ul class="smt-menu-list">
+          <li class="smt-menu-item smt-expandable">
+            <div class="smt-menu-item-container">
+              <span class="smt-menu-icon"><i class="fas fa-flag"></i></span>
+              <span class="smt-menu-label">Priority tasks</span>
+              <span class="smt-expand-arrow"><i class="fas fa-chevron-down"></i></span>
+            </div>
+          </li>
+          <li class="smt-menu-item smt-expandable">
+            <div class="smt-menu-item-container">
+              <span class="smt-menu-icon"><i class="fas fa-box"></i></span>
+              <span class="smt-menu-label">Archived</span>
+              <span class="smt-expand-arrow"><i class="fas fa-chevron-down"></i></span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="smt-main-content">
+      <h1>Dashboard Overview</h1>
+      <p>Welcome to your CRM dashboard. Use the sidebar to navigate between different sections.</p>
+    </main>
+  </div>
+
+  <script>
+    // Theme management
+    const themeToggle = document.getElementById('smt-themeToggle');
+    const body = document.body;
+
+    // Load saved theme or default to dark
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    body.setAttribute('data-theme', savedTheme);
+
+    // Theme toggle functionality
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = body.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      
+      body.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+    });
+
+    const smtL1Btns = document.querySelectorAll(".smt-l1 .smt-iconBtn");
+    const smtMenuBlocks = document.querySelectorAll(".smt-menu");
+
+    // Global state to track sidebar expansion
+    let isSidebarExpanded = false;
+
+    smtL1Btns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        // Skip theme toggle button
+        if (btn.id === 'smt-themeToggle') return;
+        
+        // toggle active button
+        smtL1Btns.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        // show matching Menu
+        const id = btn.id.replace("Btn", "Menu");
+        smtMenuBlocks.forEach(menu => {
+          if (menu.id === id) { 
+            menu.classList.add("active");
+            // Apply the global expansion state to the newly active sidebar
+            if (isSidebarExpanded) {
+              menu.classList.add("expanded");
+              const expandBtn = menu.querySelector(".smt-expandBtn");
+              const collapseBtn = menu.querySelector(".smt-collapseBtn");
+              if (expandBtn) expandBtn.style.display = "none";
+              if (collapseBtn) collapseBtn.style.display = "inline-grid";
+            } else {
+              menu.classList.remove("expanded");
+              const expandBtn = menu.querySelector(".smt-expandBtn");
+              const collapseBtn = menu.querySelector(".smt-collapseBtn");
+              if (expandBtn) expandBtn.style.display = "inline-grid";
+              if (collapseBtn) collapseBtn.style.display = "none";
+            }
+          }
+          else { 
+            menu.classList.remove("active");
+          }
+        });
+      });
+    });
+
+    // Synchronized expand/collapse for all Menu blocks
+    function toggleSidebarExpansion(shouldExpand) {
+      isSidebarExpanded = shouldExpand;
+      
+      smtMenuBlocks.forEach(menu => {
+        const expandBtn = menu.querySelector(".smt-expandBtn");
+        const collapseBtn = menu.querySelector(".smt-collapseBtn");
+        
+        if (shouldExpand) {
+          menu.classList.add("expanded");
+          if (expandBtn) expandBtn.style.display = "none";
+          if (collapseBtn) collapseBtn.style.display = "inline-grid";
+        } else {
+          menu.classList.remove("expanded");
+          if (expandBtn) expandBtn.style.display = "inline-grid";
+          if (collapseBtn) collapseBtn.style.display = "none";
+        }
+      });
+    }
+
+    // Add event listeners to all expand/collapse buttons
+    document.querySelectorAll(".smt-menu").forEach(menu => {
+      const expandBtn = menu.querySelector(".smt-expandBtn");
+      const collapseBtn = menu.querySelector(".smt-collapseBtn");
+
+      if (expandBtn) {
+        expandBtn.addEventListener("click", () => {
+          if (!isSidebarExpanded) {
+            toggleSidebarExpansion(true);
+          }
+        });
+      }
+
+      if (collapseBtn) {
+        collapseBtn.addEventListener("click", () => {
+          if (isSidebarExpanded) {
+            toggleSidebarExpansion(false);
+          }
+        });
+      }
+    });
+
+    // Handle expandable items
+    document.querySelectorAll(".smt-expandable").forEach(item => {
+      item.addEventListener("click", (e) => {
+        e.stopPropagation(); // Prevent event bubbling
+        
+        // On mobile, only allow expansion if sidebar is expanded
+        if (isMobile()) {
+          const menu = item.closest('.smt-menu');
+          if (menu && !menu.classList.contains('expanded')) {
+            return; // Don't expand dropdowns on mobile when sidebar is collapsed
+          }
+        }
+        
+        item.classList.toggle("expanded");
+      });
+    });
+
+    // Handle item selection for non-expandable items
+    document.querySelectorAll(".smt-menu-item:not(.smt-expandable)").forEach(item => {
+      item.addEventListener("click", (e) => {
+        // Remove active from siblings in the same list
+        const parent = item.closest(".smt-menu-list");
+        if (parent) {
+          parent.querySelectorAll(".smt-menu-item").forEach(sibling => {
+            sibling.classList.remove("active");
+          });
+        }
+
+        // Add active to clicked item
+        item.classList.add("active");
+      });
+    });
+
+    // Handle browser back button
+    window.addEventListener('popstate', function(event) {
+      // Close sidebar when back button is pressed
+      if (isSidebarExpanded) {
+        toggleSidebarExpansion(false);
+      }
+    });
+
+    // Optional: Handle escape key to close sidebar
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape' && isSidebarExpanded) {
+        toggleSidebarExpansion(false);
+      }
+    });
+
+    // Mobile-specific functionality
+    const smtMobileBackdrop = document.getElementById('smt-mobileBackdrop');
+    const isMobile = () => window.innerWidth <= 768;
+
+    // Mobile backdrop click to close sidebar
+    if (smtMobileBackdrop) {
+      smtMobileBackdrop.addEventListener('click', () => {
+        if (isMobile()) {
+          closeMobileSidebar();
+        }
+      });
+    }
+
+    // Mobile close buttons
+    // document.querySelectorAll('.smt-mobile-close-btn').forEach(btn => {
+    //   btn.addEventListener('click', () => {
+    //     if (isMobile()) {
+    //       closeMobileSidebar();
+    //     }
+    //   });
+    // });
+
+    // Function to close mobile sidebar
+    function closeMobileSidebar() {
+      smtMenuBlocks.forEach(menu => {
+        menu.classList.remove('active');
+      });
+      if (smtMobileBackdrop) {
+        smtMobileBackdrop.classList.remove('active');
+      }
+      // Close any expanded dropdowns
+      document.querySelectorAll('.smt-expandable.expanded').forEach(item => {
+        item.classList.remove('expanded');
+      });
+    }
+
+    // Function to show mobile sidebar
+    function showMobileSidebar(menuElement) {
+      if (isMobile()) {
+        smtMenuBlocks.forEach(menu => menu.classList.remove('active'));
+        menuElement.classList.add('active');
+        if (smtMobileBackdrop) {
+          smtMobileBackdrop.classList.add('active');
+        }
+      }
+    }
+
+    // Update L1 button click handler for mobile
+    smtL1Btns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        // Skip theme toggle button
+        if (btn.id === 'smt-themeToggle') return;
+        
+        // toggle active button
+        smtL1Btns.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        // show matching Menu
+        const id = btn.id.replace("Btn", "Menu");
+        const targetMenu = document.getElementById(id);
+        
+        if (targetMenu) {
+          if (isMobile()) {
+            showMobileSidebar(targetMenu);
+          } else {
+            smtMenuBlocks.forEach(menu => {
+              if (menu.id === id) { 
+                menu.classList.add("active");
+                // Apply the global expansion state to the newly active sidebar
+                if (isSidebarExpanded) {
+                  menu.classList.add("expanded");
+                  const expandBtn = menu.querySelector(".smt-expandBtn");
+                  const collapseBtn = menu.querySelector(".smt-collapseBtn");
+                  if (expandBtn) expandBtn.style.display = "none";
+                  if (collapseBtn) collapseBtn.style.display = "inline-grid";
+                } else {
+                  menu.classList.remove("expanded");
+                  const expandBtn = menu.querySelector(".smt-expandBtn");
+                  const collapseBtn = menu.querySelector(".smt-collapseBtn");
+                  if (expandBtn) expandBtn.style.display = "inline-grid";
+                  if (collapseBtn) collapseBtn.style.display = "none";
+                }
+              }
+              else { 
+                menu.classList.remove("active");
+              }
+            });
+          }
+        }
+      });
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      if (!isMobile()) {
+        // Reset mobile states when switching to desktop
+        if (smtMobileBackdrop) {
+          smtMobileBackdrop.classList.remove('active');
+        }
+      }
+    });
+
+    // Touch gestures for mobile (optional)
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    document.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    });
+
+    document.addEventListener('touchend', (e) => {
+      if (!isMobile()) return;
+      
+      const touchEndX = e.changedTouches[0].clientX;
+      const touchEndY = e.changedTouches[0].clientY;
+      const diffX = touchStartX - touchEndX;
+      const diffY = touchStartY - touchEndY;
+
+      // Swipe left to close sidebar (if sidebar is open)
+      if (Math.abs(diffX) > Math.abs(diffY) && diffX > 50) {
+        const activeSidebar = document.querySelector('.smt-menu.active');
+        if (activeSidebar) {
+          closeMobileSidebar();
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>
